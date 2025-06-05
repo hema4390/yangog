@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9Xtream Web</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
+    .container { max-width: 600px; margin: auto; }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 15px; }
+    input { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; }
+    button { margin-top: 20px; padding: 12px; width: 100%; border: none; background: #0af; color: white; border-radius: 10px; font-size: 16px; }
+    .footer { text-align: center; margin-top: 30px; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>9Xtream Web</h1>
+    <form id="loginForm">
+      <label>رابط السيرفر (host)</label>
+      <input type="text" id="host" placeholder="مثال: http://yourserver.com">
+      <label>اسم المستخدم</label>
+      <input type="text" id="user" placeholder="اسم المستخدم">
+      <label>كلمة المرور</label>
+      <input type="password" id="pass" placeholder="كلمة المرور">
+      <button type="submit">تسجيل الدخول</button>
+    </form>
+    <div class="footer">نسخة تجريبية - واجهة 9Xtream Web</div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const host = document.getElementById('host').value.trim();
+      const user = document.getElementById('user').value.trim();
+      const pass = document.getElementById('pass').value.trim();
+
+      if (!host || !user || !pass) {
+        alert("يرجى تعبئة جميع الحقول.");
+        return;
+      }
+
+      const apiUrl = `${host}/player_api.php?username=${user}&password=${pass}`;
+      const streamBase = `${host}/live/${user}/${pass}/`;
+
+      localStorage.setItem("xtream_api", apiUrl);
+      localStorage.setItem("xtream_stream", streamBase);
+      window.location.href = "channels.html";
+    });
+  </script>
+</body>
+</html>

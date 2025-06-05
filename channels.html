@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>القنوات - 9Xtream Web</title>
+  <style>
+    body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; }
+    h1, h2 { text-align: center; }
+    .top-bar { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .btn { background: #c00; color: #fff; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; }
+    .group { margin-top: 30px; }
+    .channel { padding: 10px; background: #222; margin: 5px 0; cursor: pointer; border-radius: 6px; }
+    .channel:hover { background: #0af; }
+    video { width: 100%; margin-top: 20px; display: none; border-radius: 12px; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <h1>قنوات البث المباشر</h1>
+    <button class="btn" onclick="logout()">تسجيل الخروج</button>
+  </div>
+
+  <div id="content">جاري تحميل القنوات...</div>
+  <video id="player" controls autoplay></video>
+
+  <script>
+    const apiUrl = localStorage.getItem("xtream_api");
+    const streamBase = localStorage.getItem("xtream_stream");
+    const content = document.getElementById("content");
+    const player = document.getElementById("player");
+
+    if (!apiUrl || !streamBase) {
+      window.location.href = "index.html";
+    }
+
+    async function loadChannels() {
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        const live = data.channels || data.live_streams || [];
+
+        const groups = {};
+        live.forEach(channel => {
+          const group = channel.category_name || "غير مصنف";
+          if (!groups[group]) groups[group] = [];
+          groups[group].push(channel);
+        });
+
+        content.innerHTML = "";
+        for (const [group, channels] of Object.entries(groups)) {
+          const groupDiv = document.createElement("div");
+          groupDiv.className = "group";
+          groupDiv.innerHTML = `<h2>${group}</h2>`;
+
+          channels.forEach(ch => {
+            const chDiv = document.createElement("div");
+            chDiv.className = "channel";
+            chDiv.textContent = ch.name;
+            chDiv.onclick = () => playChannel(ch.stream_id);
+            groupDiv.appendChild(chDiv);
+          });
+
+          content.appendChild(groupDiv);
+        }
+      } catch (err) {
+        content.innerHTML = "فشل في تحميل القنوات.";
+      }
+    }
+
+    function playChannel(streamId) {
+      const url = streamBase + streamId + ".m3u8";
+      player.src = url;
+      player.style.display = "block";
+      player.play();
+    }
+
+    function logout() {
+      localStorage.removeItem("xtream_api");
+      localStorage.removeItem("xtream_stream");
+      window.location.href = "index.html";
+    }
+
+    loadChannels();
+  </script>
+</body>
+</html>
